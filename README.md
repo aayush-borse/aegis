@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="assets/aegis-logo.png" alt="AEGIS logo" width="600">
+  <img src="assets/aegis-logo.png" alt="AEGIS logo" width="750">
 </p>
 
 <h1 align="center">AEGIS</h1>
