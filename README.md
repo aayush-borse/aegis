@@ -3,7 +3,7 @@
   <img src="assets/aegis-logo.png" alt="AEGIS logo" width="750">
 </p>
 
-<h1 align="center">AEGIS</h1>
+<h1 align="center">**AEGIS**</h1>
 
 <p align="center">
   <strong>Autonomous Software Supply-Chain Intelligence & Verified Remediation Engine</strong>
