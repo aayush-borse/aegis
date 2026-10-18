@@ -19,7 +19,7 @@ def test_discovers_supported_manifests(tmp_path):
 # when only path of file is given
 def test_only_requirementfile_exists(tmp_path):
     requirements = tmp_path / "requirements.txt"
-    requirements.write_text("request==2.34.05\nname = 'sample'\n", encoding="utf-8")
+    requirements.write_text("requests==2.34.05\n", encoding="utf-8")
 
     result = discover_manifests(tmp_path)
     assert result == [requirements]

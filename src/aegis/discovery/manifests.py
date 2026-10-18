@@ -12,13 +12,9 @@ def discover_manifests(project: str | Path) -> list[Path]:
     project = Path(project)
 
     if not project.exists():
-        raise FileNotFoundError(
-            f"Project directory not found: {project}"
-        )  # if path doesnt exist we dont continue with our operation
+        raise FileNotFoundError(f"Project directory not found: {project}")
     if not project.is_dir():
-        raise NotADirectoryError(
-            f"Project is not a directory: {project}"
-        )  # if path exists but it is not in directory
+        raise NotADirectoryError(f"Project is not a directory: {project}")
 
     found = []
     for name in SUPPORTED_MANIFESTS:
