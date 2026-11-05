@@ -1,3 +1,5 @@
 """AEGIS: dependency supply-chain investigation and remediation support."""
 
-__version__ = "0.2.0"
+"""Autonomous Software Supply-Chain Intelligence & Verified Remediation Engine."""
+
+__version__ = "1.0.0"

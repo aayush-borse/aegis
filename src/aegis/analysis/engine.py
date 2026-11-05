@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aegis.discovery.manifests import discover_manifests
 from aegis.models import AnalysisIssue, AnalysisReport, DependencyFinding
+from aegis.parsing.lockfile import lockfile_to_dependencies, parse_lockfile
 from aegis.parsing.pyproject import parse_pyproject
 from aegis.parsing.requirements import parse_requirements_file, to_dependencies
 from aegis.remediation.candidates import suggest_fixed_versions
@@ -34,11 +35,16 @@ def analyze_project(
             deps, issues = to_dependencies(parsed)
             report.dependencies.extend(deps)
             report.issues.extend(issues)
+        elif manifest.name == "requirements.lock":
+            parsed = parse_lockfile(manifest)
+            deps, issues = lockfile_to_dependencies(parsed)
+            report.dependencies.extend(deps)
+            report.issues.extend(issues)
         elif manifest.name == "pyproject.toml":
             deps, issues = parse_pyproject(manifest)
             report.dependencies.extend(deps)
             report.issues.extend(issues)
-    # Preserve duplicates and source provenance. Deduplicate network requests only.
+
     cache = {}
     for dep in report.dependencies:
         key = (dep.name.lower().replace("_", "-"), dep.specifier)

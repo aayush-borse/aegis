@@ -4,6 +4,7 @@ from pathlib import Path
 
 SUPPORTED_MANIFESTS = (
     "requirements.txt",
+    "requirements.lock",
     "pyproject.toml",
 )
 
