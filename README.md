@@ -9,8 +9,8 @@
   <p><strong>Understand the risk. Investigate the fix. Verify the outcome.</strong></p>
 
   <p>
-    An evidence-driven Python CLI for dependency investigation,
-    vulnerability intelligence and remediation analysis.
+    An evidence-driven Python engine for dependency investigation,
+    vulnerability intelligence and verified remediation.
   </p>
 
   <p>
@@ -19,8 +19,8 @@
     <img src="https://img.shields.io/badge/Vulnerability%20Data-OSV.dev-blue?style=flat-square" alt="OSV.dev" />
     <img src="https://img.shields.io/badge/Testing-pytest-0A9EDC?style=flat-square&logo=pytest&logoColor=white" alt="pytest" />
     <img src="https://img.shields.io/badge/Code%20Quality-Ruff-D7FF64?style=flat-square" alt="Ruff" />
-    <img src="https://img.shields.io/badge/Status-Research%20%2F%20MVP-orange?style=flat-square" alt="Research MVP" />
-    <img src="https://img.shields.io/github/license/YOUR_GITHUB_USERNAME/YOUR_AEGIS_REPOSITORY?style=flat-square" alt="License" />
+    <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square" alt="Version 1.0.0" />
+    <img src="https://img.shields.io/github/license/aayush-borse/aegis?style=flat-square" alt="License" />
   </p>
 
   <p>
@@ -56,9 +56,9 @@ Modern software applications depend on increasingly complex ecosystems of third-
 
 These dependencies introduce security risks that can be difficult to identify, investigate and resolve reliably.
 
-**AEGIS (Autonomous Software Supply-Chain Intelligence & Verified Remediation Engine)** is an early-stage Python CLI designed to make dependency investigation more structured, transparent and evidence-driven.
+**AEGIS (Autonomous Software Supply-Chain Intelligence & Verified Remediation Engine)** is a modular Python system designed to make dependency investigation, vulnerability analysis and remediation more structured, transparent and evidence-driven.
 
-It discovers supported Python dependency manifests, builds a source-aware dependency inventory, optionally queries vulnerability information from OSV.dev, and generates structured JSON and human-readable Markdown reports.
+AEGIS goes beyond identifying potentially vulnerable dependencies. Its underlying engine supports dependency and lockfile resolution, vulnerability intelligence, applicability analysis, remediation candidate generation, remediation execution, verification and security-data exports.
 
 The broader engineering objective is to investigate how dependency vulnerabilities can be analyzed, potential fixes evaluated, and remediation outcomes verified through reproducible evidence.
 
@@ -70,130 +70,144 @@ A meaningful remediation workflow must investigate:
 
 * Which dependency is involved?
 * Where was it declared?
+* How was its version resolved?
 * What vulnerability information is available?
-* Which versions are reported as fixed?
-* Is a proposed update compatible?
+* Does the vulnerability apply to the resolved dependency version?
+* Which remediation options are supported by the available evidence?
+* What happened when a proposed change was applied?
 * What verification was actually performed?
 * What evidence supports the final conclusion?
 
 AEGIS is designed around this distinction between **detecting a potential risk and establishing evidence that a remediation is acceptable.**
 
-> **Security and maturity:** AEGIS is currently a research/MVP tool, not a complete security scanner or hardened remediation agent. A clean scan does not prove a project is secure. Network results may be incomplete, and dependency metadata alone cannot establish runtime compatibility.
+> **Security and maturity:** AEGIS provides dependency investigation and remediation capabilities, but it is not a guarantee that a project is secure. Vulnerability intelligence can be incomplete, and successful verification checks cannot prove the absence of all vulnerabilities or runtime defects. Findings and evidence should be reviewed before accepting changes.
 
 ## Features
 
-| Capability                 | Description                                                      | Status      |
-| -------------------------- | ---------------------------------------------------------------- | ----------- |
-| Manifest Discovery         | Discover root-level Python dependency manifests                  | Implemented |
-| Requirements Parsing       | Parse PEP 508 declarations with source and line provenance       | Implemented |
-| PyProject Parsing          | Parse PEP 621 dependencies and optional dependencies             | Implemented |
-| Dependency Inventory       | Build a source-aware dependency inventory                        | Implemented |
-| Analysis Issues            | Surface unsupported declarations and incomplete analysis         | Implemented |
-| Vulnerability Intelligence | Query OSV.dev for PyPI package vulnerability information         | Implemented |
-| Fixed-Version Candidates   | Conservatively extract fixed-version candidates from OSV records | Implemented |
-| JSON Reporting             | Generate structured analysis reports                             | Implemented |
-| Markdown Reporting         | Generate human-readable reports                                  | Implemented |
-| Workspace Preparation      | Create disposable project copies for future verification work    | Implemented |
-| Automated Testing          | pytest test suite                                                | Implemented |
-| Code Quality               | Ruff linting and formatting                                      | Implemented |
-| Automated CI               | GitHub Actions workflow                                          | Configured  |
+| Capability | Description | Status |
+|---|---|---|
+| Manifest Discovery | Discovers and parses supported dependency manifests. | Implemented |
+| Requirements Parsing | Parses dependency declarations and retains source information. | Implemented |
+| PyProject Parsing | Processes supported Python project dependency declarations. | Implemented |
+| Dependency Inventory | Builds structured dependency representations. | Implemented |
+| Lockfile Resolution | Resolves dependency information using supported lockfiles. | Implemented |
+| Vulnerability Intelligence | Retrieves vulnerability information from OSV.dev. | Implemented |
+| Applicability Analysis | Evaluates vulnerability applicability against resolved dependency versions. | Implemented |
+| Remediation Candidates | Generates reviewable dependency remediation candidates. | Implemented |
+| Remediation Execution | Applies supported remediation proposals programmatically. | Implemented |
+| Verification Engine | Integrates automated verification checks for proposed changes. | Implemented |
+| Evidence Collection | Collects verification and analysis results for review. | Implemented |
+| JSON Reporting | Generates structured analysis and remediation reports. | Implemented |
+| Markdown Reporting | Generates human-readable reports. | Implemented |
+| SBOM Export | Provides software component inventory export capabilities. | Implemented |
+| SARIF Export | Provides structured security finding export capabilities. | Implemented |
+| Automated Testing | pytest test suite covering implemented functionality. | Implemented |
+| Code Quality | Ruff linting and formatting. | Configured |
+| Automated CI | GitHub Actions workflow. | Configured |
 
 ## How AEGIS Works
 
-The current workflow is read-only with respect to the target project's dependency files.
+The overall workflow follows a structured dependency investigation and remediation process.
 
 ```text
-             TARGET PYTHON PROJECT
-                       |
-                       v
-                PROJECT DISCOVERY
-                       |
-                       v
-                MANIFEST DISCOVERY
-                       |
-              +--------+--------+
-              |                 |
-              v                 v
-        requirements.txt    pyproject.toml
-              |                 |
-              v                 v
-       REQUIREMENTS PARSER  PYPROJECT PARSER
-              |                 |
-              +--------+--------+
-                       |
-                       v
-              DEPENDENCY INVENTORY
-                       |
-                       v
-               VULNERABILITY CHECK
-                       |
-                       v
-                    OSV.dev
-                       |
-                       v
-               ANALYSIS FINDINGS
-                       |
-              +--------+--------+
-              |                 |
-              v                 v
-          JSON REPORT      MARKDOWN REPORT
+                  TARGET PYTHON PROJECT
+                           |
+                           v
+                    PROJECT DISCOVERY
+                           |
+                           v
+             MANIFEST AND LOCKFILE ANALYSIS
+                           |
+                           v
+                   DEPENDENCY RESOLUTION
+                           |
+                           v
+                VULNERABILITY INTELLIGENCE
+                           |
+                           v
+                 APPLICABILITY ANALYSIS
+                           |
+                           v
+                REMEDIATION CANDIDATES
+                           |
+                           v
+                REMEDIATION EXECUTION
+                           |
+                           v
+                  VERIFICATION ENGINE
+                           |
+                           v
+                  EVIDENCE COLLECTION
+                           |
+                  +--------+--------+
+                  |        |        |
+                  v        v        v
+                REPORTS   SBOM     SARIF
 ```
 
-Workspace preparation is a separate operation. It creates a disposable copy of a project but does not install dependencies or execute project code.
+This diagram represents the broader capabilities of the AEGIS package. Not every stage is exposed as an independent CLI command.
+
+Workspace preparation is available as a separate operation. It creates a separate project copy for controlled evaluation.
 
 ## Architecture
 
-AEGIS follows a modular Python architecture with separate responsibilities for discovery, parsing, analysis, vulnerability intelligence, reporting and workspace preparation.
+AEGIS follows a modular Python architecture with separate responsibilities for discovery, parsing, dependency analysis, vulnerability intelligence, remediation, verification, reporting and workspace preparation.
 
 ### Component Responsibilities
 
-| Component              | Responsibility                                                   |
-| ---------------------- | ---------------------------------------------------------------- |
-| CLI                    | Exposes commands and user-facing configuration                   |
-| Discovery              | Identifies supported dependency manifests                        |
-| Parsing                | Converts dependency declarations into structured representations |
-| Analysis               | Coordinates project analysis and collects findings               |
-| Vulnerability          | Integrates with OSV.dev                                          |
-| Models                 | Defines structured analysis data                                 |
-| Reporting              | Generates JSON and Markdown reports                              |
-| Verification Workspace | Prepares disposable project copies for future verification work  |
+| Component | Responsibility |
+|---|---|
+| CLI | Exposes user-facing commands and configuration. |
+| Discovery | Identifies supported dependency manifests. |
+| Parsing | Converts dependency declarations into structured representations. |
+| Analysis | Coordinates dependency analysis and resolution. |
+| Vulnerability | Integrates vulnerability intelligence and applicability analysis. |
+| Remediation | Generates and applies remediation proposals. |
+| Verification | Runs verification checks and evaluates outcomes. |
+| Models | Defines structured data exchanged between components. |
+| Reporting | Generates JSON, Markdown, SBOM and SARIF outputs. |
+| Workspace | Prepares separate project copies for evaluation. |
 
 ### Engineering Principles
 
 **1. Source-aware analysis**
 
-Dependency findings retain information about their original source, allowing developers to trace declarations back to project files and locations.
+Dependency findings retain relevant source information, allowing developers to trace declarations back to project files and locations.
 
 **2. Explicit limitations**
 
-Unsupported declarations and incomplete checks are surfaced as issues rather than silently ignored.
+Unsupported declarations and incomplete checks should be surfaced as issues rather than silently ignored.
 
-**3. Read-only investigation**
+**3. Isolation**
 
-Scanning does not silently modify dependency manifests or execute target project code.
+Dependency changes can be evaluated in separate workspaces rather than directly modifying the original project.
 
 **4. Evidence over assumptions**
 
-Vulnerability records and fixed-version candidates are presented as investigation evidence, not automatic proof of exploitability or compatibility.
+Vulnerability records, remediation candidates and verification results are treated as evidence for review, not automatic proof of security or compatibility.
 
 **5. Separation of concerns**
 
-Discovery, parsing, vulnerability queries, reporting and workspace preparation remain separate components.
+Discovery, parsing, vulnerability queries, remediation, verification and reporting remain separate components.
+
+**6. Reproducibility**
+
+Analysis results and verification evidence should be traceable and repeatable.
 
 ## Technology Stack
 
-| Layer                      | Technology      | Purpose                          |
-| -------------------------- | --------------- | -------------------------------- |
-| Language                   | Python 3.10+    | Core application                 |
-| Dependency parsing         | packaging       | PEP 508 requirement parsing      |
-| Configuration parsing      | tomllib / tomli | TOML processing                  |
-| Vulnerability intelligence | OSV.dev         | Public vulnerability information |
-| CLI                        | Python argparse | Command-line interface           |
-| Data models                | Python          | Structured analysis results      |
-| Testing                    | pytest          | Automated tests                  |
-| Code quality               | Ruff            | Linting and formatting           |
-| Version control            | Git             | Source control                   |
-| CI                         | GitHub Actions  | Automated checks                 |
+| Layer | Technology | Purpose |
+|---|---|---|
+| Language | Python 3.10+ | Core application |
+| Dependency parsing | packaging | Python dependency and version handling |
+| Configuration parsing | tomllib / tomli | TOML processing |
+| Vulnerability intelligence | OSV.dev | Public vulnerability information |
+| CLI | Python argparse | Command-line interface |
+| Data models | Python | Structured analysis results |
+| Testing | pytest | Automated tests |
+| Code quality | Ruff | Linting and formatting |
+| Version control | Git | Source control |
+| CI | GitHub Actions | Automated checks |
 
 ## Getting Started
 
@@ -209,11 +223,9 @@ Network access is optional when using offline mode.
 ### 1. Clone the repository
 
 ```bash
-git clone YOUR_AEGIS_REPOSITORY_URL
+git clone https://github.com/aayush-borse/aegis.git
 cd aegis
 ```
-
-Replace the repository URL with your actual GitHub repository URL.
 
 ### 2. Create a virtual environment
 
@@ -257,11 +269,13 @@ Inspect the available commands and options.
 
 ## Usage
 
-AEGIS exposes a command-line interface for dependency investigation and workspace preparation.
+AEGIS currently exposes two primary CLI commands: `scan` and `prepare-workspace`.
+
+Additional remediation, verification and export capabilities are available through the underlying Python package modules.
 
 ### 1. Run a dependency scan
 
-Perform a read-only scan with online OSV.dev queries:
+Perform a project scan with online OSV.dev vulnerability queries:
 
 ```bash
 aegis scan /path/to/project
@@ -273,9 +287,11 @@ aegis scan /path/to/project
 aegis scan "C:\path\to\project"
 ```
 
+The scan command performs project discovery, manifest and lockfile analysis, dependency resolution, vulnerability querying, applicability checking and report generation.
+
 ### 2. Run an offline scan
 
-Skip online vulnerability queries and perform a deterministic dependency inventory:
+Skip online vulnerability queries:
 
 ```bash
 aegis scan ./sample-project --offline
@@ -293,17 +309,17 @@ The timeout controls the configured OSV query timeout.
 
 ### 4. Use vulnerability findings as a CI gate
 
-Return exit code `1` if OSV records were returned:
+Return a non-zero exit code when vulnerability findings meet the configured condition:
 
 ```bash
 aegis scan ./sample-project --fail-on-vulnerability
 ```
 
-This is a simple record-based gate. It does not establish that every returned record applies to the exact resolved dependency version.
+Review the generated report to understand the findings and their applicability evidence.
 
-### 5. Prepare a disposable workspace
+### 5. Prepare a separate workspace
 
-Create a copy of a target project:
+Create a project copy:
 
 ```bash
 aegis prepare-workspace ./sample-project
@@ -315,65 +331,48 @@ Choose a custom destination:
 aegis prepare-workspace ./sample-project --destination ./tmp/aegis-copy
 ```
 
-The destination must not already exist.
+Workspace preparation is a separate operation from remediation execution and verification.
 
-The workspace preparation command copies project files while excluding common version-control, environment and cache directories.
+**Important:** A separate project copy should not automatically be treated as a hardened security sandbox. Review execution permissions and environmental isolation before running untrusted project code.
 
-**Important:** This is a project-copy operation, not a secure sandbox. It does not execute code or install packages.
+## Remediation and Verification
 
-## Reports and Exit Codes
+AEGIS includes programmatic capabilities for generating and applying remediation proposals.
 
-AEGIS produces two report formats.
+The remediation workflow is designed to distinguish between:
+
+* Identifying a vulnerable dependency.
+* Determining whether vulnerability information applies to the resolved version.
+* Generating a candidate remediation.
+* Applying a supported change.
+* Running verification checks.
+* Collecting evidence for human review.
+
+Remediation candidates are not equivalent to guaranteed fixes. Version constraints, compatibility, project behavior and verification outcomes must be considered before accepting a change.
+
+Advanced remediation and verification functionality is implemented in the Python package modules. These capabilities are not currently exposed as separate CLI subcommands.
+
+## Reports and Exports
+
+AEGIS supports multiple output formats to make findings and remediation results easier to inspect and integrate into development workflows.
 
 ### JSON Report
 
-`aegis-report.json`
-
-A structured report containing:
-
-* Dependency information.
-* Analysis findings.
-* Source locations.
-* Vulnerability information.
-* Analysis issues.
-* Check status information.
+A structured output containing relevant dependency analysis, vulnerability findings and remediation or verification information.
 
 ### Markdown Report
 
-`aegis-report.md`
-
 A human-readable report designed to make dependency investigation results easier to inspect and review.
 
-### Exit Codes
+### SBOM Export
 
-| Exit Code | Meaning                                                                                         |
-| --------- | ----------------------------------------------------------------------------------------------- |
-| `0`       | Static analysis completed without reported parsing/query issues, or offline inventory completed |
-| `1`       | `--fail-on-vulnerability` was requested and OSV returned one or more records                    |
-| `2`       | Invalid input or incomplete analysis                                                            |
+Programmatic software component inventory export capabilities.
 
-Always inspect report status fields and issues to understand which checks actually ran.
+### SARIF Export
 
-### Interpreting Results
+Programmatic structured security finding export capabilities for compatible analysis workflows.
 
-A vulnerability record does not automatically prove that the exact declared dependency version is affected.
-
-Similarly, zero returned vulnerability records do not prove that a dependency is safe.
-
-The initial implementation uses package-level OSV queries. These are not a replacement for lockfile-aware dependency resolution and complete affected-version range evaluation.
-
-## Supported Inputs and Current Limitations
-
-| Input              | Current Behavior                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `requirements.txt` | Supports PEP 508 declarations, blank lines, full-line comments and simple backslash continuations                   |
-| `pyproject.toml`   | Supports PEP 621 `[project.dependencies]` and `[project.optional-dependencies]`                                     |
-| Pip directives     | Options, nested includes, editable/VCS installs and index directives are reported as unsupported                    |
-| Poetry / PDM       | Poetry/PDM-specific dependency layouts are not resolved                                                             |
-| Lockfiles          | Lockfile-aware resolution is not implemented                                                                        |
-| Vulnerability Data | Public OSV.dev query API for PyPI packages                                                                          |
-| Remediation        | Reports fixed versions present in vulnerability data; does not modify manifests or guarantee compatibility          |
-| Verification       | Workspace-copy preparation only; no package installation, arbitrary command execution or application test execution |
+JSON and Markdown reporting are available through the scan CLI options. SBOM and SARIF exports are provided through the reporting modules rather than standalone CLI commands.
 
 ## Development
 
@@ -416,13 +415,12 @@ aegis/
 │
 ├── src/
 │   └── aegis/
-│       ├── discovery/
-│       ├── parsing/
 │       ├── analysis/
-│       ├── vulnerability/
+│       ├── parsing/
+│       ├── remediation/
 │       ├── reporting/
 │       ├── verification/
-│       ├── models.py
+│       ├── vulnerability/
 │       └── cli.py
 │
 ├── tests/
@@ -432,40 +430,37 @@ aegis/
 └── LICENSE
 ```
 
-*The diagram illustrates the architectural organization; consult the repository for the exact current file list.*
+*The diagram illustrates the major architectural areas. Consult the repository for the exact current file list.*
 
 ## Roadmap
 
-AEGIS is being developed incrementally. The following improvements represent future engineering milestones rather than currently implemented features.
+With the core capabilities implemented, future development focuses on improving reliability, evaluation quality and integration.
 
 ### Dependency Intelligence
 
-* [ ] Lockfile-aware dependency resolution.
-* [ ] More complete dependency relationship analysis.
-* [ ] Version-range applicability analysis.
-* [ ] Expanded ecosystem support.
+* [ ] Build representative dependency and vulnerability evaluation datasets.
+* [ ] Measure vulnerability applicability accuracy.
+* [ ] Evaluate false-positive and false-negative behavior.
+* [ ] Improve diagnostic reporting for incomplete dependency analysis.
 
 ### Verified Remediation
 
-* [ ] Evaluate candidate dependency upgrades.
-* [ ] Container-isolated verification.
-* [ ] Before-and-after evidence collection.
-* [ ] Dependency compatibility assessment.
-* [ ] Reproducible remediation reports.
+* [ ] Evaluate remediation success across representative projects.
+* [ ] Improve verification reliability and coverage.
+* [ ] Expand compatibility assessment.
+* [ ] Improve reproducibility of remediation results.
 
 ### Reporting and Integration
 
-* [ ] SBOM generation.
-* [ ] SARIF output.
-* [ ] CI/CD integration improvements.
-* [ ] Expanded security reporting.
+* [ ] Improve CI/CD integration workflows.
+* [ ] Expand interoperability with security tooling.
+* [ ] Improve report traceability and evidence presentation.
 
-### Advanced Investigation
+### Security and Usability
 
-* [ ] Optional auditable AI-assisted investigation.
-* [ ] Dependency setup-failure diagnosis.
-* [ ] Cloud and runtime compatibility assessment.
-* [ ] More comprehensive verification workflows.
+* [ ] Review workspace isolation and execution boundaries.
+* [ ] Improve failure handling and operational diagnostics.
+* [ ] Expand documentation and developer experience.
 
 See the detailed project documents:
 
@@ -474,13 +469,14 @@ See the detailed project documents:
 
 ## Responsible Use
 
-AEGIS is intended to assist with dependency investigation, not to certify that a software project is secure.
+AEGIS is intended to assist with dependency investigation and remediation decisions, not to certify that a software project is secure.
 
 * Only analyze projects you are authorized to inspect.
 * Review external vulnerability records before making security decisions.
-* Evaluate proposed dependency upgrades before applying them.
-* Do not execute untrusted projects in ordinary temporary directories and assume they are isolated.
+* Evaluate proposed dependency upgrades before accepting them.
 * Treat incomplete analysis and missing vulnerability data as uncertainty, not proof of safety.
+* Review verification evidence rather than relying only on a successful exit code.
+* Do not execute untrusted projects in ordinary temporary directories and assume they are isolated.
 
 ## Contributing
 
@@ -509,6 +505,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
   <p><strong>Understand the risk. Investigate the fix. Verify the outcome.</strong></p>
 
-<sub>Evidence-driven software supply-chain investigation.</sub>
+  <sub>Evidence-driven software supply-chain investigation.</sub>
 
 </div>
