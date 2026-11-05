@@ -1,0 +1,65 @@
+{
+  "project": "C:\\Users\\Aayush(work)\\aegis-demo",
+  "generated_at": "2026-10-23T11:13:43.258277+00:00",
+  "manifests": [
+    "C:\\Users\\Aayush(work)\\aegis-demo\\requirements.txt"
+  ],
+  "dependencies": [
+    {
+      "name": "requests",
+      "specifier": "==2.19.0",
+      "source": "C:\\Users\\Aayush(work)\\aegis-demo\\requirements.txt",
+      "line_number": 1,
+      "direct": true,
+      "extras": [],
+      "marker": null,
+      "url": null
+    },
+    {
+      "name": "flask",
+      "specifier": "==2.0.0",
+      "source": "C:\\Users\\Aayush(work)\\aegis-demo\\requirements.txt",
+      "line_number": 2,
+      "direct": true,
+      "extras": [],
+      "marker": null,
+      "url": null
+    }
+  ],
+  "findings": [
+    {
+      "dependency": {
+        "name": "requests",
+        "specifier": "==2.19.0",
+        "source": "C:\\Users\\Aayush(work)\\aegis-demo\\requirements.txt",
+        "line_number": 1,
+        "direct": true,
+        "extras": [],
+        "marker": null,
+        "url": null
+      },
+      "vulnerabilities": [],
+      "recommended_versions": [],
+      "status": "not_checked"
+    },
+    {
+      "dependency": {
+        "name": "flask",
+        "specifier": "==2.0.0",
+        "source": "C:\\Users\\Aayush(work)\\aegis-demo\\requirements.txt",
+        "line_number": 2,
+        "direct": true,
+        "extras": [],
+        "marker": null,
+        "url": null
+      },
+      "vulnerabilities": [],
+      "recommended_versions": [],
+      "status": "not_checked"
+    }
+  ],
+  "issues": [],
+  "vulnerability_source": "OSV.dev API",
+  "complete": true,
+  "schema_version": "1.0"
+}
