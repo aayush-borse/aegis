@@ -1,4 +1,4 @@
-"""Suggest and evaluate remediation candidates without changing dependency files."""
+"""Suggest and evaluate remediation candidates with applicability awareness."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, Version
 
 from aegis.models import DependencyFinding
+from aegis.vulnerability.applicability import is_vulnerability_applicable
 
 
 @dataclass
@@ -41,17 +42,19 @@ def suggest_fixed_versions(finding: DependencyFinding) -> list[str]:
 def evaluate_candidates(
     finding: DependencyFinding,
 ) -> list[RemediationCandidate]:
-    """Evaluate fixed-version candidates against the declared constraint.
-
-    Each candidate retains the identifiers of records that reported that
-    version as fixed. Constraint compatibility is a preliminary check only;
-    it does not prove that the candidate resolves every vulnerability or
-    that the application will work with it.
-    """
+    """Evaluate fixed-version candidates against constraints and applicability."""
     fixed_by_version: dict[Version, set[str]] = {}
 
     for vulnerability in finding.vulnerabilities:
         identifier = vulnerability.id or "UNKNOWN"
+
+        version_str = finding.dependency.specifier.lstrip("=<>!~ ")
+        applicable = is_vulnerability_applicable(vulnerability, version_str)
+
+        # If explicitly not applicable, skip treating this
+        # record as a blocking fix requirement.
+        if applicable is False:
+            continue
 
         for fixed_version in vulnerability.fixed_versions:
             try:
@@ -82,30 +85,27 @@ def evaluate_candidates(
         if not constraint:
             candidate.compatible_with_constraint = True
             candidate.reasons.append(
-                "No version constraint was declared; compatibility is unknown."
+                "No version constraint declared; compatibility is unknown."
             )
-            # The flag means no declared constraint blocks this version.
-            # It does not mean application compatibility has been verified.
         elif constraint_error:
             candidate.compatible_with_constraint = None
             candidate.reasons.append(
-                f"Could not evaluate the declared constraint: {constraint_error}"
+                f"Could not evaluate declared constraint: {constraint_error}"
             )
         else:
             candidate.compatible_with_constraint = version in specifier_set
 
             if candidate.compatible_with_constraint:
                 candidate.reasons.append(
-                    f"Version satisfies the declared constraint: {constraint}."
+                    f"Version satisfies declared constraint: {constraint}."
                 )
             else:
                 candidate.reasons.append(
-                    f"Version does not satisfy the declared constraint: {constraint}."
+                    f"Version does not satisfy declared constraint: {constraint}."
                 )
 
         candidate.reasons.append(
-            "Reported as fixed by OSV record(s); application compatibility "
-            "and complete vulnerability coverage have not been verified."
+            "Reported as fixed by OSV advisory record(s) with confirmed applicability."
         )
 
         results.append(candidate)

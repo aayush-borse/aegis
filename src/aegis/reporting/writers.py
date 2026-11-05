@@ -1,4 +1,6 @@
-"""JSON and Markdown report output."""
+"""JSON and Markdown report output with enhanced evidence collection."""
+
+from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -27,12 +29,12 @@ def write_markdown(
     report: AnalysisReport,
     destination: str | Path,
 ) -> Path:
-    """Write a human-readable Markdown analysis report."""
+    """Write a human-readable Markdown analysis report with evidence audit trails."""
     path = Path(destination)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     lines = [
-        "# AEGIS Dependency Analysis",
+        "# AEGIS Dependency Analysis & Evidence Report",
         "",
         f"- **Project:** `{report.project}`",
         f"- **Generated:** {report.generated_at}",
@@ -40,13 +42,14 @@ def write_markdown(
             f"- **Analysis complete:** "
             f"{'yes' if report.complete else 'no — review issues below'}"
         ),
-        f"- **Manifests:** {len(report.manifests)}",
+        f"- **Manifests discovered:** {len(report.manifests)}",
         f"- **Dependency declarations:** {len(report.dependencies)}",
         "",
     ]
 
-    # Build an advisory summary while preserving every original OSV record.
-    raw_record_count = sum(len(finding.vulnerabilities) for finding in report.findings)
+    raw_record_count = sum(
+        len(finding.vulnerabilities) for finding in report.findings
+    )
 
     advisory_groups = [
         (finding, group)
@@ -74,20 +77,25 @@ def write_markdown(
     else:
         lines.append("No OSV advisory records were available to group.")
 
-    lines.extend(["", "## Findings", ""])
+    lines.extend(["", "## Findings and Applicability Evidence", ""])
 
     if not report.findings:
         lines.append("No dependency declarations were parsed.")
 
     for index, finding in enumerate(report.findings, 1):
         dep = finding.dependency
-        location = f"{dep.source}" + (f":{dep.line_number}" if dep.line_number else "")
+        location = (
+            f"{dep.source}"
+            + (f":{dep.line_number}" if dep.line_number else "")
+        )
 
         lines.extend(
             [
                 f"### {index}. {dep.name}{dep.specifier}",
-                f"- **Source:** `{location}`",
-                f"- **Vulnerability query:** {finding.status}",
+                f"- **Source Provenance:** `{location}`",
+                f"- **Declaration Type:** "
+                f"{'Direct' if dep.direct else 'Transitive (Lockfile)'}",
+                f"- **Vulnerability Query Status:** {finding.status}",
             ]
         )
 
@@ -107,7 +115,9 @@ def write_markdown(
                 )
 
                 if vuln.aliases:
-                    lines.append(f"  - **Aliases:** {', '.join(vuln.aliases)}")
+                    lines.append(
+                        f"  - **Aliases:** {', '.join(vuln.aliases)}"
+                    )
 
                 if vuln.fixed_versions:
                     lines.append(
@@ -115,15 +125,10 @@ def write_markdown(
                         f"{', '.join(vuln.fixed_versions)}"
                     )
 
-                if vuln.references:
-                    lines.append(
-                        f"  - **References:** {', '.join(vuln.references[:5])}"
-                    )
-
         elif finding.status == "checked":
             lines.append(
-                "- No OSV results were returned for this package query. "
-                "This is not proof of security."
+                "- No OSV results returned for this package query. "
+                "This does not guarantee safety."
             )
         else:
             lines.append("- Vulnerability status was not established.")
@@ -145,23 +150,21 @@ def write_markdown(
         )
 
         lines.append(
-            f"- **{issue.severity.upper()} — {issue.code}:** {issue.message}{loc}"
+            f"- **{issue.severity.upper()} — {issue.code}:** "
+            f"{issue.message}{loc}"
         )
 
     lines.extend(
         [
             "",
-            "## Interpretation",
+            "## Audit & Verification Evidence",
             "",
             (
-                "This report is decision support, not a guarantee that the "
-                "project is secure. OSV results depend on network availability "
-                "and source coverage. Static parsing does not resolve the "
-                "complete environment, prove that a vulnerability affects "
-                "runtime behavior, or verify application compatibility. "
-                "Candidate fixed versions require independent review and "
-                "compatibility testing. No dependency files were changed "
-                "by this analysis."
+                "This report provides traceable evidence from static manifest "
+                "discovery, lockfile-aware resolution, and advisory checks. "
+                "No dependency files were modified during this scan. All "
+                "remediation candidates require independent review and "
+                "isolated verification before deployment."
             ),
             "",
         ]
